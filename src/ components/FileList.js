@@ -3,38 +3,30 @@ import PropTypes from 'prop-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit,  faTrash, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { faMarkdown } from '@fortawesome/free-brands-svg-icons'
+import useKeyPress from '../hooks/useKeyPress';
 
 const FileList = ({ files, onFileClick, onSaveEdit, onFileDelete}) => {
     const [editStatus, setEditStatus] = useState(false)
     const [value, setValue] = useState('')
-    const closeSearch = (e) => {
-        e.preventDefault()
+    const enterPressed = useKeyPress(13)
+    const escPressed = useKeyPress(27)
+
+    const closeSearch = () => {
         setEditStatus(false)
         setValue('')
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
-        const handleInputEvent = (event) => {
-            const { keyCode } = event;
-            if (keyCode === 13 && editStatus) {
-                const editItem = files.find(file => file.id === editStatus)
-                onSaveEdit(editItem.id, value)
-                setEditStatus(false)
-                setValue('')
-            } else if (keyCode === 27 && editStatus) {
-                setEditStatus(false)
-                setValue('')
-            }
+        if (enterPressed && editStatus) {
+            const editItem = files.find(file => file.id === editStatus)
+            onSaveEdit(editItem.id, value)
+            setEditStatus(false)
+            setValue('')
         }
-        document.addEventListener('keyup', handleInputEvent)
-        return () => {
-            document.removeEventListener('keyup', handleInputEvent)
+        if (escPressed && editStatus) {
+            closeSearch()
         }
     })
-    // useEffect(() => {
-    //     if (inputActive) {
-    //         node.current.focus()
-    //     }
-    // }, [])
     return (
         <ul className="list-group list-group-flush file-list">
             {files.map(file => (

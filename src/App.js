@@ -2,10 +2,11 @@ import React from 'react'
 import { faPlus, faFileImport } from '@fortawesome/free-solid-svg-icons'
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import FileSearch from './ components/FileSearch'
-import FileList from './ components/FileList'
+import FileSearch from './components/FileSearch'
+import FileList from './components/FileList'
 import defaultFiles from './utils/defaultFiles'
-import BottomBtn from './ components/BottomBtn'
+import BottomBtn from './components/BottomBtn'
+import TabList from './components/TabList'
 
 function App() {
   return (
@@ -40,8 +41,12 @@ function App() {
             </div>
           </div>
         </div>
-        <div className="col-9 bg-primary right-panel">
-          <h1>right</h1>
+        <div className="col-9 right-panel">
+          <TabList
+            files={defaultFiles}
+            activeId={'1'}
+            onTabClick={(id) => {console.log(id)}}
+          />
         </div>
       </div>
     </div>

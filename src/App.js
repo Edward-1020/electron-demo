@@ -15,6 +15,7 @@ function App() {
   const [ activeFileID, setActiveFileID ] = useState('')
   const [ openedFileIDs, setOpenedFileIDs ] = useState([])
   const [ unsavedFileIDs, setUnsavedFileIDs ] = useState([])
+  const [ searchedFiles, setSearchedFiles ] = useState([])
   const openedFiles = openedFileIDs.map(openID => {
     return files.find(file => file.id === openID)
   })
@@ -48,19 +49,38 @@ function App() {
       setUnsavedFileIDs([...unsavedFileIDs, id])
     }
   }
+  const deleteFile = (id) => {
+    const newFiles = files.filter(file => file.id !== id)
+    setFiles(newFiles)
+    tabClose(id)
+  }
+  const updateFileName = (id, title) => {
+    const newFiles = files.map(file => {
+      if (file.id === id) {
+        file.title = title
+      }
+      return file
+    })
+    setFiles(newFiles)
+  }
+  const fileSearch = (keyword) => {
+    const newFiles = files.filter(file => file.title.includes(keyword))
+    setSearchedFiles(newFiles)
+  }
   const activeFile = files.find(file => file.id === activeFileID)
+  const fileListArr = (searchedFiles.length > 0) ? searchedFiles : files
   return (
     <div className="App container-fluid px-0">
       <div className="row no-gutters">
         <div className="col-3 bg-light left-panel">
           <FileSearch
-            onFileSearch={(value) => {console.log(value)}}
+            onFileSearch={fileSearch}
           />
           <FileList
-            files={files}
+            files={fileListArr}
             onFileClick={fileClick}
-            onFileDelete={(id) => {console.log(id)}}
-            onSaveEdit={(id, newValue) => {console.log(id, newValue)}}
+            onFileDelete={deleteFile}
+            onSaveEdit={updateFileName}
           />
           <div className="row no-gutters button-group">
             <div className="col">

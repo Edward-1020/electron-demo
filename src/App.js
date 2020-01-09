@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, { useState } from 'react'
 import { faPlus, faFileImport } from '@fortawesome/free-solid-svg-icons'
 import './App.css'
@@ -19,6 +18,36 @@ function App() {
   const openedFiles = openedFileIDs.map(openID => {
     return files.find(file => file.id === openID)
   })
+  const fileClick = (fileID) => {
+    setActiveFileID(fileID)
+    if (!openedFileIDs.includes(fileID)) {
+      setOpenedFileIDs([...openedFileIDs, fileID])
+    }
+  }
+  const tabClick = (fileId) => {
+    setActiveFileID(fileId)
+  }
+  const tabClose = (id) => {
+    const tabsWithout = openedFileIDs.filter(fileID => fileID !== id)
+    setOpenedFileIDs(tabsWithout)
+    if (tabsWithout.length > 0) {
+      setActiveFileID(tabsWithout[0])
+    } else {
+      setActiveFileID('')
+    }
+  }
+  const fileChange = (id, value) => {
+    const newFiles = files.map(file => {
+      if (file.id === id) {
+        file.body = value;
+      }
+      return file
+    })
+    setFiles(newFiles)
+    if (!unsavedFileIDs.includes(id)) {
+      setUnsavedFileIDs([...unsavedFileIDs, id])
+    }
+  }
   const activeFile = files.find(file => file.id === activeFileID)
   return (
     <div className="App container-fluid px-0">
@@ -29,7 +58,7 @@ function App() {
           />
           <FileList
             files={files}
-            onFileClick={(id) => {console.log(id)}}
+            onFileClick={fileClick}
             onFileDelete={(id) => {console.log(id)}}
             onSaveEdit={(id, newValue) => {console.log(id, newValue)}}
           />
@@ -61,12 +90,13 @@ function App() {
                 files={openedFiles}
                 activeId={activeFileID}
                 unsaveIds={unsavedFileIDs}
-                onTabClick={(id) => {console.log(id)}}
-                onCloseTab={(id) => {console.log('closing', id)}}
+                onTabClick={tabClick}
+                onCloseTab={tabClose}
               />
               <SimpleMDE
+                key={activeFile && activeFile.id}
                 value={activeFile && activeFile.body}
-                onChange={(value) => {console.log(value)}}
+                onChange={(value) => {fileChange(activeFile.id, value)}}
                 options={{
                   minHeight: '515px'
                 }}/>

@@ -4,13 +4,12 @@ import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import FileSearch from './components/FileSearch'
 import FileList from './components/FileList'
-import defaultFiles from './utils/defaultFiles'
 import BottomBtn from './components/BottomBtn'
 import TabList from './components/TabList'
 import SimpleMDE from "react-simplemde-editor"
 import uuidv4 from 'uuid/v4'
 import fileHelper from './utils/fileHelper'
-import { flattenArr, objToArr } from './utils/helper'
+import { objToArr } from './utils/helper'
 import "easymde/dist/easymde.min.css";
 
 const { join } = window.require('path')
@@ -76,12 +75,17 @@ function App() {
     }
   }
   const deleteFile = (id) => {
-    fileHelper.defaultFiles(files[id].path)
-      .then(() => {
-        delete files[id]
-        setFiles(files)
-        tabClose(id)
-      })
+    if (files[id].isNew) {
+      const {[id]: value, ...afterDelete} = files;
+      setFiles(afterDelete)    
+    } else {
+      fileHelper.defaultFiles(files[id].path)
+        .then(() => {
+          const {[id]: value, ...afterDelete} = files;
+          setFiles(afterDelete)    
+          tabClose(id)
+        })
+    }
   }
   const updateFileName = (id, title, isNew) => {
     const newPath = join(savedLocation, `${title}.md`)

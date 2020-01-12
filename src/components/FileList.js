@@ -11,22 +11,32 @@ const FileList = ({ files, onFileClick, onSaveEdit, onFileDelete}) => {
     const enterPressed = useKeyPress(13)
     const escPressed = useKeyPress(27)
 
-    const closeSearch = () => {
+    const closeSearch = (editItem) => {
         setEditStatus(false)
         setValue('')
+        if (editItem.isNew) {
+            onFileDelete(editItem.id)
+        }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
+        const editItem = files.find(file => file.id === editStatus)
         if (enterPressed && editStatus) {
-            const editItem = files.find(file => file.id === editStatus)
             onSaveEdit(editItem.id, value)
             setEditStatus(false)
             setValue('')
         }
         if (escPressed && editStatus) {
-            closeSearch()
+            closeSearch(editItem)
         }
     })
+    useEffect(() => {
+        const newFile = files.find(file => file.isNew)
+        if (newFile) {
+            setEditStatus(newFile.id)
+            setValue(newFile.title)
+        }
+    }, [files])
     return (
         <ul className="list-group list-group-flush file-list">
             {files.map(file => (
@@ -34,7 +44,7 @@ const FileList = ({ files, onFileClick, onSaveEdit, onFileDelete}) => {
                     className="list-group-item bg-light row d-flex align-items-center file-item mx-0"
                     key={file.id}
                 >
-                    {   (file.id !== editStatus) ? 
+                    {   (file.id !== editStatus || !file.isNew) ? 
                         <>
                             <span className="col-2">
                                 <FontAwesomeIcon
@@ -77,7 +87,7 @@ const FileList = ({ files, onFileClick, onSaveEdit, onFileDelete}) => {
                             <button
                                 type="button"
                                 className="icon-button col-2"
-                                onClick={closeSearch}
+                                onClick={() => {closeSearch(file)}}
                             >
                                 <FontAwesomeIcon
                                     title="关闭"

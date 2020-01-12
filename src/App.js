@@ -7,7 +7,8 @@ import FileList from './components/FileList'
 import defaultFiles from './utils/defaultFiles'
 import BottomBtn from './components/BottomBtn'
 import TabList from './components/TabList'
-import SimpleMDE from "react-simplemde-editor";
+import SimpleMDE from "react-simplemde-editor"
+import uuidv4 from 'uuid/v4'
 import "easymde/dist/easymde.min.css";
 
 function App() {
@@ -58,6 +59,7 @@ function App() {
     const newFiles = files.map(file => {
       if (file.id === id) {
         file.title = title
+        file.isNew = false
       }
       return file
     })
@@ -66,6 +68,20 @@ function App() {
   const fileSearch = (keyword) => {
     const newFiles = files.filter(file => file.title.includes(keyword))
     setSearchedFiles(newFiles)
+  }
+  const createNewFile = () => {
+    const newId = uuidv4();
+    const newFiles = [
+      ...files,
+      {
+        id: newId,
+        title: '',
+        body: '## 请输入 Markdown',
+        createdAt: new Date().getTime(),
+        isNew: true,
+      }
+    ]
+    setFiles(newFiles)
   }
   const activeFile = files.find(file => file.id === activeFileID)
   const fileListArr = (searchedFiles.length > 0) ? searchedFiles : files
@@ -88,7 +104,7 @@ function App() {
                 text="新建"
                 colorClass="btn-primary"
                 icon={faPlus}
-                onBtnClick={() => {}}
+                onBtnClick={createNewFile}
               />
             </div>
             <div className="col">

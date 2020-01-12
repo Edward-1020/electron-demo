@@ -1,6 +1,6 @@
-const fs = require('fs').promises
+const fs = window.require('fs').promises
 
-export const fileHelper = {
+const fileHelper = {
     readFile: (path, cb) => {
         return fs.readFile(path, {encoding: 'utf8'})
     },
@@ -11,3 +11,5 @@ export const fileHelper = {
         return fs.rename(path, newPath)
     }
 }
+
+export default fileHelper

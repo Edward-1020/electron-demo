@@ -9,10 +9,10 @@ import TabList from './components/TabList'
 import SimpleMDE from "react-simplemde-editor"
 import uuidv4 from 'uuid/v4'
 import fileHelper from './utils/fileHelper'
-import { objToArr } from './utils/helper'
+import { objToArr, flattenArr } from './utils/helper'
 import "easymde/dist/easymde.min.css";
 
-const { join } = window.require('path')
+const { join, basename, extname, dirname } = window.require('path')
 const { remote } = window.require('electron')
 const Store = window.require('electron-store')
 
@@ -88,7 +88,8 @@ function App() {
     }
   }
   const updateFileName = (id, title, isNew) => {
-    const newPath = join(savedLocation, `${title}.md`)
+    const newPath = isNew ? join(savedLocation, `${title}.md`)
+    : join(dirname(files[id].path), `${title}.md`)
     const modifiedFile = {...files[id], title, isNew:false, path: newPath}
     const newFiles = {...files, [id]: modifiedFile}
 
@@ -99,7 +100,7 @@ function App() {
           saveFilesToStore(newFiles)
         })
     } else {
-      const oldPath = join(savedLocation, `${files[id].title}.md`);
+      const oldPath = files[id].path;
       fileHelper.renameFile(oldPath, newPath)
         .then(() => {
           setFiles(newFiles)
@@ -129,7 +130,7 @@ function App() {
   })
   const fileListArr = (searchedFiles.length > 0) ? searchedFiles : filesArr
   const saveCurrentFile = () => {
-    fileHelper.writeFile(join(savedLocation, `${activeFile.title}.md`), activeFile.body)
+    fileHelper.writeFile(activeFile.path, activeFile.body), activeFile.body)
       .then(() => {
         setUnsavedFileIDs(unsavedFileIDs.filter(id => id !== activeFile.id))
       })
@@ -142,7 +143,31 @@ function App() {
         {name: 'Markdown files', extensions: ['md']}
       ]
     }, (paths) => {
-      console.log(paths)
+      if (Array.isArray(paths)) {
+        const filteredPaths = paths.filter(path => {
+          const alreadyAdded = Object.values(files).find(file => {
+            return file.path === path;
+          })
+          return !alreadyAdded;
+        })
+        const importFilesArr = filteredPaths.map(path => {
+          return {
+            id: uuidv4(),
+            title: basename(path, extname(path)),
+            path,
+          }
+        })
+        const newFiles = {...files, ...flattenArr(importFilesArr)}
+        setFiles(newFiles)
+        saveFilesToStore(newFiles)
+        if (importFilesArr.length > 0) {
+          remote.dialog.showMessageBox({
+            type: 'info',
+            title: `成功导入了${importFiles.length}个文件`,
+            message: `成功导入了${importFiles.length}个文件`
+          })
+        }
+      }
     })
   }
   return (

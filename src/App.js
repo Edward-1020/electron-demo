@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { faPlus, faFileImport, faSave } from '@fortawesome/free-solid-svg-icons'
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -13,7 +13,7 @@ import { objToArr, flattenArr } from './utils/helper'
 import "easymde/dist/easymde.min.css";
 
 const { join, basename, extname, dirname } = window.require('path')
-const { remote } = window.require('electron')
+const { remote, ipcRenderer } = window.require('electron')
 const Store = window.require('electron-store')
 
 const fileStore = new Store({name: 'Files Data'})
@@ -170,6 +170,14 @@ function App() {
       }
     })
   }
+  useEffect(() => {
+    const callback = () => {
+    }
+    ipcRenderer.on('create-new-file', callback)
+    return () => {
+      ipcRenderer.removeListener('create-new-file', callback)
+    }
+  })
   return (
     <div className="App container-fluid px-0">
       <div className="row no-gutters">

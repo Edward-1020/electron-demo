@@ -3,7 +3,8 @@ import PropTypes from 'prop-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit,  faTrash, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { faMarkdown } from '@fortawesome/free-brands-svg-icons'
-import useKeyPress from '../hooks/useKeyPress';
+import useKeyPress from '../hooks/useKeyPress'
+import useContextMenu from '../hooks/useContextMenu'
 
 const { remote } = window.require('electron');
 const { Menu, MenuItem } = remote;
@@ -21,29 +22,18 @@ const FileList = ({ files, onFileClick, onSaveEdit, onFileDelete}) => {
             onFileDelete(editItem.id)
         }
     }
-
-    useEffect(() => {
-        const menu = new Menu();
-        menu.append(new MenuItem({
-            label: '打开',
-            click: () => {}
-        }));
-        menu.append(new MenuItem({
-            label: '重命名',
-            click: () => {}
-        }));
-        menu.append(new MenuItem({
-            label: '删除',
-            click: () => {}
-        }));
-        const handleContextMenu = (e) => {
-            menu.popup({window: remote.getCurrentWindow()})
-        }
-        window.addEventListener('contextmenu', handleContextMenu)
-        return () => {
-            window.removeEventListener('contextmenu', handleContextMenu)
-        }
-    })
+    const clickedItem = useContextMenu([{
+        label: '打开',
+        click: () => {}
+    },
+    {
+        label: '重命名',
+        click: () => {}
+    },
+    {
+        label: '删除',
+        click: () => {}
+    }])
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {

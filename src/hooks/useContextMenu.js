@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react"
 import { remote, Menu, MenuItem } from "electron"
 
-const useContextMenu = (itemArr, targetSelector) => {
+const useContextMenu = (itemArr, targetSelector, deps) => {
     let clickedElement = useRef(null)
     useEffect(() => {
         const menu = new Menu();
